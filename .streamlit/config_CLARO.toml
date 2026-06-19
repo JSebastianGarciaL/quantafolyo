@@ -1,0 +1,13 @@
+# QuantαfolyΩ — Tema modo claro (cálido)
+# Instrucciones:
+#   1. Crea la carpeta .streamlit/ dentro de portfoliolab_streamlit\ si no existe
+#   2. Copia este archivo como:  .streamlit\config.toml
+#   3. Reinicia la app con: streamlit run app.py
+
+[theme]
+base                    = "light"
+primaryColor            = "#D76F02"
+backgroundColor         = "#FDF6EE"
+secondaryBackgroundColor = "#F7E1D3"
+textColor               = "#3B200B"
+font                    = "sans serif"

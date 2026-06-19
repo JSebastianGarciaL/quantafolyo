@@ -1,0 +1,13 @@
+# QuantαfolyΩ — Tema modo oscuro (frío)
+# Instrucciones:
+#   1. Crea la carpeta .streamlit/ dentro de portfoliolab_streamlit\ si no existe
+#   2. Copia este archivo como:  .streamlit\config.toml
+#   3. Reinicia la app con: streamlit run app.py
+
+[theme]
+base                    = "dark"
+primaryColor            = "#97b261"
+backgroundColor         = "#0B161E"
+secondaryBackgroundColor = "#162e1a"
+textColor               = "#D8D2C6"
+font                    = "sans serif"

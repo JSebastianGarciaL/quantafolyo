@@ -1,0 +1,30 @@
+# QuantαfolyΩ — Dependencias
+# Instalar con: pip install -r requirements.txt
+
+# --- Core ---
+streamlit>=1.35.0,<2.0.0
+
+# --- Datos ---
+yfinance>=0.2.40
+pandas>=2.0.0
+numpy>=1.26.0
+pandas-datareader>=0.10.0
+
+# --- Econometría y estadística ---
+statsmodels>=0.14.0
+scipy>=1.11.0
+arch>=6.3.0
+pingouin>=0.5.4
+scikit-learn>=1.3.0
+
+# --- Optimización ---
+cvxpy>=1.4.0
+
+# --- Visualización ---
+plotly>=5.20.0
+
+# --- PDF ---
+reportlab>=4.0.0
+
+# --- Exportar figuras Plotly a imagen (para PDF) ---
+kaleido>=0.2.1
