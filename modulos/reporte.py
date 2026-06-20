@@ -930,6 +930,7 @@ def generar_pdf(reporte_texto: str,
             story.append(Paragraph("Retornos acumulados \u2014 activos vs S&amp;P 500", est_caption))
             story.append(Spacer(1, 0.3*cm))
         except Exception as e:
+            print(f"[PDF] Error generando gráfico retornos: {repr(e)}")
             story.append(Paragraph(f"[Gr\u00e1fico retornos no disponible]", est_caption))
 
     # Gráfico pesos del portafolio
@@ -941,6 +942,7 @@ def generar_pdf(reporte_texto: str,
             story.append(Paragraph("Composici\u00f3n de los portafolios \u2014 pesos por activo (%)", est_caption))
             story.append(Spacer(1, 0.3*cm))
         except Exception as e:
+            print(f"[PDF] Error generando gráfico pesos: {repr(e)}")
             story.append(Paragraph(f"[Gr\u00e1fico pesos no disponible]", est_caption))
 
     # Gráfico betas
@@ -951,6 +953,7 @@ def generar_pdf(reporte_texto: str,
                                  width=doc.width, height=doc.width*200/700))
             story.append(Paragraph("Beta por activo \u2014 sensibilidad al mercado (CAPM)", est_caption))
         except Exception as e:
+            print(f"[PDF] Error generando gráfico betas: {repr(e)}")
             story.append(Paragraph(f"[Gr\u00e1fico betas no disponible]", est_caption))
 
     story.append(PageBreak())
