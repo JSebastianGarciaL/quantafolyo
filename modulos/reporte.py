@@ -23,9 +23,8 @@ warnings.filterwarnings('ignore')
 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import plotly.express as px
 
-from config import FACTOR_ANUALIZACION, COLORES
+from config import FACTOR_ANUALIZACION, COLORES, COLORES_CLARO
 
 
 # =============================================================================
@@ -49,7 +48,10 @@ def asistente_completo(retornos: pd.DataFrame,
                         res_norm: pd.DataFrame,
                         res_arch: pd.DataFrame,
                         res_mardia: dict,
-                        nivel: str = 'basico') -> str:
+                        nivel: str = 'basico',
+                        frecuencia: str = '1mo') -> str:
+
+    _frec_label = {'1mo': 'mensuales', '1wk': 'semanales', '1d': 'diarias'}.get(frecuencia, 'mensuales')
     """
     Genera narrativa completa del análisis de principio a fin.
     Retorna string con formato texto plano (secciones delimitadas).
@@ -85,7 +87,7 @@ def asistente_completo(retornos: pd.DataFrame,
     if n_obs < 36:
         add()
         add("⚠️ ADVERTENCIA DE MUESTRA PEQUEÑA")
-        add(f"Este análisis usa {n_obs} observaciones mensuales.")
+        add(f"Este análisis usa {n_obs} observaciones {_frec_label}.")
         add("Los modelos estadísticos requieren al menos 36-60 observaciones para tener")
         add("poder estadístico confiable. Los resultados son orientativos.")
         add("Recomendación: ampliar la ventana temporal a 3-5 años.")
@@ -103,7 +105,7 @@ def asistente_completo(retornos: pd.DataFrame,
 
     if nivel == 'basico':
         add(f"Se analizaron {n_activos} activos financieros durante el período")
-        add(f"{periodo_inicio} — {periodo_fin} ({n_obs} observaciones mensuales).")
+        add(f"{periodo_inicio} — {periodo_fin} ({n_obs} observaciones {_frec_label}).")
         add()
         add(f"Activos incluidos: {', '.join(tickers)}")
         add()
@@ -133,7 +135,7 @@ def asistente_completo(retornos: pd.DataFrame,
         if not res_estac.empty:
             todos_estac = (res_estac['Semaforo'] == 'VERDE').all()
             if todos_estac:
-                add("✅ ESTACIONARIEDAD: Los retornos de todos los activos son")
+                add("ESTACIONARIEDAD: Los retornos de todos los activos son")
                 add("   estables en el tiempo — condición necesaria para los modelos.")
             else:
                 prob = res_estac[res_estac['Semaforo'] != 'VERDE']['Ticker'].tolist()
@@ -144,7 +146,7 @@ def asistente_completo(retornos: pd.DataFrame,
             mixtos   = res_norm[res_norm['Semaforo'] == 'AMARILLO']['Ticker'].tolist()
             prob_n   = no_norm + mixtos
             if not prob_n:
-                add("✅ NORMALIDAD: Los retornos siguen distribución normal.")
+                add("NORMALIDAD: Los retornos siguen distribución normal.")
             else:
                 add(f"⚠️  NORMALIDAD: {prob_n} no siguen distribución normal.")
                 add("   Los eventos extremos son más frecuentes de lo esperado.")
@@ -154,13 +156,13 @@ def asistente_completo(retornos: pd.DataFrame,
             col_r    = next((c for c in res_arch.columns if 'rechaza' in c.lower()), None)
             con_arch = res_arch[res_arch[col_r] == True]['Ticker'].tolist() if col_r else []
             if not con_arch:
-                add("✅ VOLATILIDAD: Constante en el tiempo para todos los activos.")
+                add("VOLATILIDAD: Constante en el tiempo para todos los activos.")
             else:
                 add(f"⚠️  VOLATILIDAD VARIABLE: {con_arch} muestran clustering.")
 
         diag_mardia = res_mardia.get('diagnostico', '') if res_mardia else ''
-        if 'NORMAL' in diag_mardia and 'NO' not in diag_mardia:
-            add("✅ NORMALIDAD CONJUNTA: El portafolio cumple los supuestos de Markowitz.")
+        if diag_mardia.startswith('NORMAL'):
+            add("NORMALIDAD CONJUNTA: El portafolio cumple los supuestos de Markowitz.")
         else:
             add("⚠️  NORMALIDAD CONJUNTA: El portafolio presenta desviaciones.")
             add("   Se recomienda interpretar el VaR paramétrico con precaución.")
@@ -250,7 +252,7 @@ def asistente_completo(retornos: pd.DataFrame,
             if t in capm_local.index:
                 beta = float(capm_local.loc[t, 'Beta'])
                 r2   = float(capm_local.loc[t, 'R2'])
-                tipo = "agresivo" if beta > 1.2 else ("defensivo" if beta < 0.8 else "neutral")
+                tipo = "agresivo" if beta > 1.1 else ("defensivo" if beta < 0.9 else "neutral")
                 add(f"  {t}: β={beta:.2f} ({tipo}) | R²={r2:.2f}")
         add()
         add("FAMA-FRENCH 3 FACTORES — Mercado + Tamaño + Valor:")
@@ -354,7 +356,7 @@ def asistente_completo(retornos: pd.DataFrame,
         if nivel == 'basico':
             add("DIVERSIFICACIÓN (Prueba de Spanning):")
             if n_exp >= n_total // 2:
-                add(f"  ✅ {n_exp}/{n_total} activos expanden el conjunto de oportunidades.")
+                add(f"  {n_exp}/{n_total} activos expanden el conjunto de oportunidades.")
             else:
                 add(f"  ⚠️  Solo {n_exp}/{n_total} activos aportan valor más allá del S&P 500.")
         else:
@@ -366,7 +368,7 @@ def asistente_completo(retornos: pd.DataFrame,
             add()
             add("ESTABILIDAD DE BETAS (Prueba de Chow):")
             if n_inest == 0:
-                add("  ✅ Betas estables — confiables para proyecciones futuras.")
+                add("  Betas estables — confiables para proyecciones futuras.")
             else:
                 add(f"  ⚠️  {n_inest} activo(s) con quiebre estructural en beta.")
         else:
@@ -482,7 +484,7 @@ def grafico_resumen_plotly(retornos: pd.DataFrame,
     ), row=1, col=1)
 
     # --- Panel 2: Composición barras agrupadas ---
-    palette = px.colors.qualitative.Set2
+    palette = COLORES_CLARO["graf_seq"]
     for i, ticker in enumerate(tickers):
         vals = []
         cols_port = [c for c in ['MVP', 'Tangente'] if c in pesos_df.columns]
@@ -575,10 +577,22 @@ def grafico_resumen_plotly(retornos: pd.DataFrame,
         ), row=2, col=2)
 
     fig.update_layout(
-        height=620,
+        height=660,
         barmode='stack',
         title_text='QuantαfolyΩ — Resumen del Análisis',
-        legend=dict(orientation='h', y=-0.12),
+        legend=dict(
+            orientation='h',
+            y=-0.16,
+            x=0,
+            xanchor='left',
+            bgcolor='rgba(255,255,255,0.6)',
+            bordercolor='rgba(87,96,113,0.3)',
+            borderwidth=1,
+            font=dict(size=10),
+            itemsizing='constant',
+            tracegroupgap=4,
+        ),
+        margin=dict(b=110),
     )
     fig.update_yaxes(title_text='Valor (base=1)', row=1, col=1)
     fig.update_yaxes(title_text='Peso (%)',       row=1, col=2)
@@ -993,8 +1007,16 @@ def generar_pdf(reporte_texto: str,
             continue
         linea_l = limpiar(linea)
         if linea_l.strip():
-            if (linea_l.startswith('  ') and
-                    any(c in linea_l for c in ['=','|','%','beta','alpha'])):
+            # Detección de línea tipo "tabla/dato técnico": requiere sangría +
+            # patrón propio de datos (ticker: valor | valor, o múltiples '=')
+            # No basta con un solo '%' o 'alpha' suelto — eso también aparece
+            # en oraciones narrativas con sangría de continuación.
+            _es_dato_tecnico = (
+                linea_l.startswith('  ')
+                and ('|' in linea_l or linea_l.count('=') >= 2 or
+                     (':' in linea_l[:30] and ('β=' in linea_l or 'R²=' in linea_l or 'α=' in linea_l)))
+            )
+            if _es_dato_tecnico:
                 try:
                     story.append(Paragraph(linea_l, est_mono))
                 except Exception:
@@ -1043,15 +1065,18 @@ def generar_pdf(reporte_texto: str,
     # Semáforo Fase 3
     if semaforo_f3 is not None and not semaforo_f3.empty:
         story.append(Paragraph("Diagn\u00f3stico verificaci\u00f3n \u2014 Spanning (Fase 3)", est_h2))
-        sem3_cols = [c for c in semaforo_f3.columns
+        # res_spanning trae el Ticker como índice (set_index('Ticker') en verificacion.py),
+        # no como columna — hay que recuperarlo antes de filtrar columnas o se pierde.
+        _semaforo_f3 = semaforo_f3.reset_index() if semaforo_f3.index.name == 'Ticker' else semaforo_f3.copy()
+        sem3_cols = [c for c in _semaforo_f3.columns
                      if c in ['Ticker','rechaza','p_valor','alpha','beta','semaforo','Conclusion']]
         if not sem3_cols:
-            sem3_cols = list(semaforo_f3.columns)[:5]
+            sem3_cols = list(_semaforo_f3.columns)[:5]
         if sem3_cols:
             sem3_data = [[Paragraph(f'<b>{c}</b>',
                           estilo(f'sh3_{c}', fontSize=7, fontName='Helvetica-Bold',
                                  textColor=C_BLANCO)) for c in sem3_cols]]
-            for _, row in semaforo_f3[sem3_cols].head(15).iterrows():
+            for _, row in _semaforo_f3[sem3_cols].head(15).iterrows():
                 sem3_data.append([limpiar(str(row[c]))[:40] for c in sem3_cols])
             col_w_s3 = [doc.width/len(sem3_cols)]*len(sem3_cols)
             s3t = Table(sem3_data, colWidths=col_w_s3, repeatRows=1)
@@ -1092,6 +1117,25 @@ def generar_pdf(reporte_texto: str,
 
     story.append(Spacer(1, 0.6*cm))
     story.append(hr(color=C_MALVA, thickness=1))
+    story.append(Paragraph("Aviso legal", est_h2))
+    est_disclaimer = estilo('disclaimer', fontSize=7, textColor=C_GRIS_AZ,
+                             leading=10, spaceAfter=3, alignment=TA_JUSTIFY)
+    story.append(Paragraph(
+        "Este documento es producto de un ejercicio educativo/experimental "
+        "(QuantαfolyΩ) y no constituye asesoría financiera, de inversión, "
+        "legal ni fiscal. Los resultados son producto de modelos "
+        "estadísticos con supuestos y limitaciones inherentes, y no "
+        "representan una recomendación de compra, venta o mantenimiento de "
+        "ningún instrumento financiero. Su uso y cualquier decisión "
+        "adoptada a partir de esta información es responsabilidad "
+        "exclusiva del usuario. QuantαfolyΩ no está afiliado, respaldado ni "
+        "patrocinado por Yahoo Finance, S&amp;P Dow Jones Indices, la Ken "
+        "French Data Library, ni por las empresas aquí analizadas. "
+        "Software distribuido \u201ctal cual\u201d, sin garantía de ningún tipo. "
+        "No se recopilan ni almacenan datos personales del usuario.",
+        est_disclaimer
+    ))
+    story.append(Spacer(1, 0.3*cm))
     story.append(Paragraph("Quant\u03b1foly\u03a9  \u00b7  Datos: Yahoo Finance  \u00b7  Benchmark: S&amp;P 500",
                             est_centrado))
 
@@ -1166,7 +1210,8 @@ def pipeline_reporte(retornos: pd.DataFrame,
                      res_arch: pd.DataFrame,
                      res_mardia: dict,
                      nivel_asistente: str = 'basico',
-                     factor: int = FACTOR_ANUALIZACION) -> dict:
+                     factor: int = FACTOR_ANUALIZACION,
+                     frecuencia: str = '1mo') -> dict:
     """
     Genera narrativa completa, gráfico resumen y PDF.
 
@@ -1198,6 +1243,7 @@ def pipeline_reporte(retornos: pd.DataFrame,
             res_arch=res_arch,
             res_mardia=res_mardia,
             nivel=nivel_asistente,
+            frecuencia=frecuencia,
         )
         _log("  OK — narrativa generada")
 

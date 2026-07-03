@@ -390,9 +390,15 @@ def graficar_riesgo_plotly(ret_port: pd.Series, ret_bench: pd.Series,
     var_95 = resultados_var['95%']['var_hist']
     var_99 = resultados_var['99%']['var_hist']
     fig.add_vline(x=-var_95, line_dash='dash', line_color='orange',
-                  annotation_text=f"VaR 95%={var_95:.3f}", row=1, col=1)
+                  annotation_text=f"VaR 95%={var_95:.3f}",
+                  annotation_position="top",
+                  annotation_yshift=18,
+                  row=1, col=1)
     fig.add_vline(x=-var_99, line_dash='dash', line_color='red',
-                  annotation_text=f"VaR 99%={var_99:.3f}", row=1, col=1)
+                  annotation_text=f"VaR 99%={var_99:.3f}",
+                  annotation_position="top",
+                  annotation_yshift=-4,
+                  row=1, col=1)
 
     # --- Panel 2: Drawdown ---
     precio_idx = np.exp(ret_port.dropna().cumsum())
@@ -495,7 +501,7 @@ def asistente_fase3c(resultados_var: dict, resultados_bt: dict,
         nota      = bt_95.get('nota_christ', '')
 
         if kupiec_ok:
-            add(f"✅ **El VaR estuvo bien calibrado.** "
+            add(f"**El VaR estuvo bien calibrado.** "
                 f"Hubo {n_viol} meses con pérdidas superiores al VaR de {n_obs} observados — "
                 f"consistente con lo esperado al 95% de confianza.")
         else:
@@ -551,7 +557,7 @@ def asistente_fase3c(resultados_var: dict, resultados_bt: dict,
             nota_c  = bt.get('nota_christ', '')
             add(f"**{etiq}:** Kupiec p={p_k:.4f} {'✅' if ok_k else '❌'} | "
                 + (f"Christoffersen p={p_c:.4f} {'✅' if ok_c else '❌'}" if p_c is not None
-                   else f"Christoffersen: {nota_c[:60]}"))
+                   else f"Christoffersen: {nota_c}"))
 
         add()
         add("### Ratios de desempeño (portafolio tangente, anualizados)")

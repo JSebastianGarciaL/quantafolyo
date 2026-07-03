@@ -31,6 +31,7 @@ from config import (
     PUNTOS_FRONTERA_EFICIENTE,
     TICKER_TASA_LIBRE_RIESGO,
     COLORES,
+    COLORES_CLARO,
 )
 
 
@@ -327,7 +328,8 @@ def graficar_frontera_plotly(frontera: pd.DataFrame, mvp: dict, tangente: dict,
         rows=1, cols=2,
         subplot_titles=("Frontera Eficiente de Markowitz + CML",
                         "Composición de Portafolios"),
-        column_widths=[0.6, 0.4],
+        column_widths=[0.58, 0.42],
+        horizontal_spacing=0.12,
     )
 
     # --- Panel izquierdo ---
@@ -341,7 +343,13 @@ def graficar_frontera_plotly(frontera: pd.DataFrame, mvp: dict, tangente: dict,
             color=frontera['sharpe'],
             colorscale='RdYlGn',
             size=5,
-            colorbar=dict(title="Sharpe", x=0.58),
+            colorbar=dict(
+                title="Sharpe",
+                x=0.555,
+                len=0.75,
+                thickness=12,
+                xanchor='left',
+            ),
             showscale=True,
         ),
         name='Frontera eficiente',
@@ -418,8 +426,12 @@ def graficar_frontera_plotly(frontera: pd.DataFrame, mvp: dict, tangente: dict,
         '1/N': equal_weight['pesos'],
     }
 
-    import plotly.express as px
-    palette = px.colors.qualitative.Set2
+    # CORRECCIÓN: antes usaba px.colors.qualitative.Set2 (paleta genérica de
+    # Plotly), inconsistente con el resto de la app que usa la paleta de marca.
+    # NOTA: el alias COLORES solo tiene 4 claves fijas y no incluye "graf_seq",
+    # por eso se usa COLORES_CLARO explícitamente como valor de creación;
+    # la página la retematiza según el tema activo en el loop de recoloreo.
+    palette = COLORES_CLARO["graf_seq"]
     for i, ticker in enumerate(tickers):
         vals = [portafolios[p].get(ticker, 0) * 100 for p in portafolios]
         fig.add_trace(go.Bar(
@@ -432,8 +444,19 @@ def graficar_frontera_plotly(frontera: pd.DataFrame, mvp: dict, tangente: dict,
 
     fig.update_layout(
         barmode='stack',
-        height=520,
-        legend=dict(orientation='h', y=-0.18, x=0),
+        height=560,
+        legend=dict(
+            orientation='h',
+            y=-0.22,
+            x=0,
+            xanchor='left',
+            bgcolor='rgba(255,255,255,0.6)',
+            bordercolor='rgba(87,96,113,0.3)',
+            borderwidth=1,
+            font=dict(size=10),
+            itemsizing='constant',
+            tracegroupgap=4,
+        ),
         xaxis=dict(
             title='Volatilidad anual (%)',
             range=[0, _vol_max_vis * 1.05],
@@ -441,6 +464,7 @@ def graficar_frontera_plotly(frontera: pd.DataFrame, mvp: dict, tangente: dict,
         yaxis=dict(title='Retorno esperado anual (%)'),
         xaxis2=dict(title='Portafolio'),
         yaxis2=dict(title='Peso (%)', range=[0, 105]),
+        margin=dict(b=90),
     )
 
     return fig
@@ -545,7 +569,7 @@ def asistente_fase3a(mvp: dict, tangente: dict, equal_weight: dict,
 
         add("### ¿Qué tan bueno es el portafolio?")
         if sharpe_tang > sharpe_bench:
-            add(f"✅ **El portafolio supera al S&P 500 en eficiencia.**")
+            add(f"**El portafolio supera al S&P 500 en eficiencia.**")
             add(f"Por cada punto de riesgo asumido, el portafolio genera **{sharpe_tang:.2f}** "
                 f"unidades de retorno extra sobre la tasa libre de riesgo — "
                 f"vs {sharpe_bench:.2f} del S&P 500. "

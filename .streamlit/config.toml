@@ -1,7 +1,25 @@
-[theme] 
-base = "light" 
-primaryColor = "#D76F02" 
-backgroundColor = "#FDF6EE" 
-secondaryBackgroundColor = "#F7E1D3" 
-textColor = "#3B200B" 
-font = "sans serif"
+# QuantαfolyΩ — Tema con modo claro/oscuro nativo de Streamlit
+#
+# Desde esta versión, ambos temas viven en ESTE ÚNICO archivo usando las
+# tablas [theme.light] y [theme.dark]. Streamlit detecta ambas automáticamente
+# y muestra un selector real en el menú ☰ → Settings → Theme, sin necesidad
+# de copiar archivos ni reiniciar el servidor.
+#
+# "base" define el tema con el que carga la app la primera vez.
+
+[theme]
+base = "light"
+
+[theme.light]
+primaryColor             = "#D76F02"
+backgroundColor          = "#FDF6EE"
+secondaryBackgroundColor = "#F7E1D3"
+textColor                = "#3B200B"
+font                     = "sans serif"
+
+[theme.dark]
+primaryColor             = "#97b261"
+backgroundColor          = "#0B161E"
+secondaryBackgroundColor = "#162e1a"
+textColor                = "#D8D2C6"
+font                     = "sans serif"

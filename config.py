@@ -232,3 +232,56 @@ def get_plotly_layout(tema: str = "light") -> dict:
             font_family = "Space Grotesk, Inter, sans-serif",
         ),
     )
+
+
+def get_plotly_config() -> dict:
+    """
+    Configuración del 'config' de st.plotly_chart — controla la modebar
+    (barra de herramientas: zoom, pan, autoscale, descarga PNG).
+
+    Hace la modebar SIEMPRE visible (no solo al hacer hover) para que
+    el usuario descubra fácilmente cómo deshacer un zoom/selección
+    accidental con el botón "Reset axes" (autoscale).
+
+    Uso en páginas:
+        from config import get_plotly_config
+        st.plotly_chart(fig, width="stretch", config=get_plotly_config())
+    """
+    return dict(
+        displayModeBar = True,       # siempre visible, no solo al hover
+        displaylogo    = False,      # quita el logo de Plotly (ruido visual)
+        modeBarButtonsToRemove = [
+            "select2d", "lasso2d",   # herramientas de selección poco usadas aquí
+            "hoverCompareCartesian", "hoverClosestCartesian",
+        ],
+        # Botones que SÍ quedan, en este orden: zoom, pan, zoom in/out,
+        # autoscale (el que "arregla" el gráfico), reset, descargar PNG
+        toImageButtonOptions = dict(
+            format = "png",
+            scale  = 2,
+        ),
+    )
+
+
+def get_legend_style(tema: str = "light", orientation: str = "h") -> dict:
+    """
+    Estilo de leyenda con fondo y borde sutil — separa visualmente la
+    leyenda del gráfico para que no se vea como una lista plana pegada
+    al eje X.
+
+    Uso en páginas:
+        fig.update_layout(legend=get_legend_style(_tema))
+    """
+    c = get_colores(tema)
+    return dict(
+        orientation = orientation,
+        y           = -0.22,
+        x           = 0,
+        xanchor     = "left",
+        bgcolor     = c["fondo_card"],
+        bordercolor = c["texto_muted"],
+        borderwidth = 1,
+        font        = dict(size=11, color=c["texto_principal"]),
+        itemsizing  = "constant",
+        tracegroupgap = 8,
+    )

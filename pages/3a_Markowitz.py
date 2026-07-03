@@ -7,10 +7,10 @@ import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 from modulos.errores import interpretar_error
-from config import get_colores, get_plotly_layout
+from config import get_colores, get_plotly_layout, get_plotly_config, get_legend_style
 
 st.set_page_config(page_title="Markowitz · QuantαfolyΩ", page_icon="📊", layout="wide")
-st.title("📊 Fase 3a — Optimización de Portafolio (Markowitz)")
+st.title("Optimización de Portafolio (Markowitz)")
 
 if st.session_state.get("retornos") is None:
     st.warning("Primero ejecuta la **📥 Fase 1 — Datos**.")
@@ -71,7 +71,7 @@ if ejecutar:
     st.session_state["fig_frontera"] = resultado["fig_frontera"]
     st.session_state["narrativa_3a"] = resultado["narrativa_3a"]
     st.session_state["fase_completada"]["markowitz"] = True
-    st.success("✅ Fase 3a completada.")
+    st.success("Fase 3a completada.")
 
 # --- Mostrar resultados ---
 if st.session_state.get("frontera") is not None:
@@ -94,6 +94,7 @@ if st.session_state.get("frontera") is not None:
         # incluyen el Sharpe (ej. "Tangente (Sharpe=0.842)"), así que el selector
         # exacto de antes nunca encontraba nada y este bloque no hacía nada.
         # Se recolorea por prefijo y se cubren todas las trazas relevantes.
+        _bar_idx = 0
         for _trace in fig_frontera.data:
             _nombre = getattr(_trace, "name", "") or ""
             if _nombre.startswith("Tangente"):
@@ -112,8 +113,15 @@ if st.session_state.get("frontera") is not None:
                                          dash="dash", width=1.5))
             elif _nombre.startswith("Rf ="):
                 _trace.update(marker=dict(color=_colores["texto_principal"]))
+            elif _trace.type == "bar":
+                # CORRECCIÓN: barras de Composición (una por ticker) — antes
+                # quedaban fijas con la paleta Set2 de creación y no respetaban
+                # el tema activo. Se recolorean con graf_seq por índice.
+                _graf_seq = _colores["graf_seq"]
+                _trace.update(marker=dict(color=_graf_seq[_bar_idx % len(_graf_seq)]))
+                _bar_idx += 1
             # "Frontera eficiente" usa escala continua por Sharpe — se deja intacta.
-        st.plotly_chart(fig_frontera, width="stretch")
+        st.plotly_chart(fig_frontera, width="stretch", config=get_plotly_config())
 
         col1, col2, col3 = st.columns(3)
         mvp      = st.session_state["mvp"]
@@ -142,7 +150,7 @@ if st.session_state.get("frontera") is not None:
         if nivel_asistente == "basico":
             if _sharpe_tang > _sharpe_bench:
                 st.success(
-                    f"✅ El portafolio tangente (Sharpe {_sharpe_tang:.2f}) supera al S&P 500 "
+                    f"El portafolio tangente (Sharpe {_sharpe_tang:.2f}) supera al S&P 500 "
                     f"(Sharpe {_sharpe_bench:.2f}) — obtienes más retorno por unidad de riesgo "
                     "que simplemente comprar el índice."
                 )
@@ -155,7 +163,7 @@ if st.session_state.get("frontera") is not None:
         else:
             if _sharpe_tang > _sharpe_bench:
                 st.success(
-                    f"✅ Sharpe tangente {_sharpe_tang:.3f} > benchmark {_sharpe_bench:.3f} "
+                    f"Sharpe tangente {_sharpe_tang:.3f} > benchmark {_sharpe_bench:.3f} "
                     f"(+{_sharpe_tang - _sharpe_bench:.3f}). "
                     "La optimización media-varianza genera alpha positivo sobre el índice en este período."
                 )
@@ -197,7 +205,7 @@ if st.session_state.get("frontera") is not None:
                 )
             else:
                 st.success(
-                    f"✅ El portafolio Tangente supera al igual-peso en Sharpe "
+                    f"El portafolio Tangente supera al igual-peso en Sharpe "
                     f"({_sharpe_tang:.2f} vs {_sharpe_ew:.2f}). "
                     "La optimización agrega valor real sobre una distribución simple."
                 )
@@ -216,7 +224,7 @@ if st.session_state.get("frontera") is not None:
                 )
             else:
                 st.success(
-                    f"✅ Tangente supera 1/N en Sharpe ({_sharpe_tang:.3f} vs {_sharpe_ew:.3f}). "
+                    f"Tangente supera 1/N en Sharpe ({_sharpe_tang:.3f} vs {_sharpe_ew:.3f}). "
                     "La estructura de covarianza estimada aporta valor al proceso de optimización."
                 )
 
@@ -235,11 +243,11 @@ if st.session_state.get("frontera") is not None:
         fig_pesos.update_layout(
             barmode='stack', height=350,
             yaxis_title='Peso (%)', xaxis_title='Portafolio',
-            legend=dict(orientation="h", y=-0.2, x=0),
-            margin=dict(l=40, r=20, t=20, b=60),
+            legend=get_legend_style(_tema),
+            margin=dict(l=40, r=20, t=20, b=70),
             **get_plotly_layout(_tema),
         )
-        st.plotly_chart(fig_pesos, width="stretch")
+        st.plotly_chart(fig_pesos, width="stretch", config=get_plotly_config())
 
         # --- Interpretación inline: Concentración de pesos ---
         _pesos_tang = pesos_df["Tangente"]
@@ -256,7 +264,7 @@ if st.session_state.get("frontera") is not None:
                 )
             else:
                 st.success(
-                    f"✅ El portafolio está bien distribuido — ningún activo supera el 50%. "
+                    f"El portafolio está bien distribuido — ningún activo supera el 50%. "
                     f"El mayor peso es **{_activo_max}** con {_peso_max*100:.1f}%. "
                     f"{_n_activos} activos tienen participación significativa (>5%)."
                 )
@@ -269,7 +277,7 @@ if st.session_state.get("frontera") is not None:
                 )
             else:
                 st.success(
-                    f"✅ Concentración moderada: máximo {_peso_max*100:.1f}% en {_activo_max}. "
+                    f"Concentración moderada: máximo {_peso_max*100:.1f}% en {_activo_max}. "
                     f"{_n_activos} activos con peso > 5% — diversificación efectiva razonable."
                 )
 
@@ -278,4 +286,4 @@ if st.session_state.get("frontera") is not None:
             st.markdown(narrativa)
 
     st.divider()
-    st.info("✅ Markowitz listo. Continúa con **📐 3b Factores** en el menú lateral.")
+    st.info("Markowitz listo. Continúa con **📐 3b Factores** en el menú lateral.")

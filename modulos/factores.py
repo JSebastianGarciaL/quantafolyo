@@ -155,8 +155,8 @@ def estimar_capm(retornos: pd.DataFrame,
         t_beta     = float(modelo.tvalues.iloc[1])
         p_beta     = float(modelo.pvalues.iloc[1])
 
-        perfil = ("Agresivo — amplifica movimientos del mercado" if beta_val > 1.2
-                  else "Defensivo — amortigua movimientos del mercado" if beta_val < 0.8
+        perfil = ("Agresivo — amplifica movimientos del mercado" if beta_val > 1.1
+                  else "Defensivo — amortigua movimientos del mercado" if beta_val < 0.9
                   else "Neutral — sigue al mercado")
 
         logs.append(f"  {ticker}: α={alpha_anual:.4f} (p={p_alpha:.4f}) | "
@@ -277,7 +277,7 @@ def descargar_ff3_v2(fecha_inicio: str, fecha_fin: str) -> tuple[pd.DataFrame, l
         df = df.set_index('Date')
         df.index = df.index + pd.offsets.MonthEnd(0)
         df = _normalizar_ff3(df)
-        logs.append(f"  ✅ {len(df)} períodos via ZIP Ken French")
+        logs.append(f"  {len(df)} períodos via ZIP Ken French")
         return df, logs
 
     except Exception as e:
@@ -325,7 +325,7 @@ def descargar_ff3_v2(fecha_inicio: str, fecha_fin: str) -> tuple[pd.DataFrame, l
         }, index=idx)
 
         ff3_proxy = _normalizar_ff3(ff3_proxy)
-        logs.append(f"  ✅ {len(ff3_proxy)} períodos via proxies ETF")
+        logs.append(f"  {len(ff3_proxy)} períodos via proxies ETF")
         logs.append("  NOTA: aproximación con ETFs — SMB/HML pueden diferir de factores oficiales.")
         return ff3_proxy, logs
 
@@ -797,16 +797,13 @@ def asistente_fase3b(res_capm: pd.DataFrame, res_ff3: pd.DataFrame,
             ticker = row['Ticker'] if 'Ticker' in row else row.name
             beta   = row['Beta']
             r2     = row['R2']
-            if beta > 1.2:
+            if beta > 1.1:
                 desc = f"amplifica los movimientos del mercado — cuando el índice sube 1%, este tiende a subir más (y a caer más también)"
-                icono = "📈"
-            elif beta < 0.8:
+            elif beta < 0.9:
                 desc = f"amortigua los movimientos del mercado — sube menos cuando el mercado sube, pero cae menos también"
-                icono = "🛡️"
             else:
                 desc = f"sigue al mercado de cerca"
-                icono = "↔️"
-            add(f"{icono} **{ticker}** (β={beta:.2f}): {desc}. "
+            add(f"**{ticker}** (β={beta:.2f}): {desc}. "
                 f"El mercado explica el **{r2*100:.0f}%** de sus movimientos.")
         add()
 
@@ -890,7 +887,7 @@ def asistente_fase3b(res_capm: pd.DataFrame, res_ff3: pd.DataFrame,
             if advert:
                 add(f"- **{modelo}** `{advert}`: advertencia en 1 supuesto.")
             if not violan and not advert:
-                add(f"- **{modelo}**: todos los residuos cumplen supuestos BLUE. ✅")
+                add(f"- **{modelo}**: todos los residuos cumplen supuestos BLUE.")
 
     add()
     add("---")

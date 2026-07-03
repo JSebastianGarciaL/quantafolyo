@@ -655,7 +655,7 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
     if nivel == 'basico':
         add("### Comportamiento de los retornos en el tiempo")
         if not no_estac and not adv_estac:
-            add("✅ **Los retornos de todos los activos son estables en el tiempo.**")
+            add("**Los retornos de todos los activos son estables en el tiempo.**")
             add("Esto significa que su comportamiento promedio y su variabilidad no cambian "
                 "drásticamente de un período a otro — condición necesaria para que los modelos "
                 "que usaremos más adelante den resultados confiables.")
@@ -667,18 +667,28 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
                 "atravesaron cambios estructurales importantes en el período analizado.")
             add("**Acción:** los resultados de estos activos deben interpretarse con precaución. "
                 "Considera ampliar la ventana temporal o investigar si hubo eventos relevantes.")
+            if adv_estac:
+                add(f"🟡 Adicionalmente, `{adv_estac}` muestran resultados mixtos entre pruebas "
+                    "— no es una violación clara, pero conviene tenerlo presente.")
+        else:
+            add(f"🟡 **`{adv_estac}` muestran resultados mixtos entre las pruebas de estacionariedad.**")
+            add("ADF y KPSS no coinciden completamente — puede haber un cambio estructural leve "
+                "en el período, pero no es una violación clara del supuesto.")
+            add("**Acción:** los modelos aplican con precaución razonable, sin requerir cambios.")
     else:
         add("### Estacionariedad (ADF + KPSS + Phillips-Perron)")
-        if not no_estac:
-            add("✅ **Todas las series son I(0).**")
+        if not no_estac and not adv_estac:
+            add("**Todas las series son I(0).**")
             add("ADF y PP rechazan raíz unitaria. KPSS no rechaza estacionariedad. "
                 "Diagnóstico consistente entre los tres tests — base estadística sólida para MCO.")
-        else:
+        elif no_estac:
             add(f"⚠️ **`{no_estac}` presentan raíz unitaria (evidencia I(1)).**")
             add("Usar estas series en niveles en modelos de regresión produce regresiones espurias. "
                 "Las series deberían diferenciarse antes de entrar a los modelos de factores. "
                 "Sin embargo, dado que trabajamos con retornos logarítmicos (ya una diferencia "
                 "del log-precio), este resultado podría indicar un quiebre estructural en el período.")
+        else:
+            add("**No hay rechazo claro de estacionariedad en ningún activo (ADF/PP).**")
         if adv_estac:
             add(f"🟡 **`{adv_estac}` muestran evidencia mixta (ADF y KPSS inconsistentes).** "
                 "Posible quiebre estructural en el período analizado.")
@@ -687,17 +697,18 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
 
     # --- Normalidad ---
     no_norm   = res_norm[res_norm['Semaforo'] == 'ROJO']['Ticker'].tolist()
+    adv_norm  = res_norm[res_norm['Semaforo'] == 'AMARILLO']['Ticker'].tolist()
     kurt_alta = res_norm[res_norm['Curtosis'] > 1]['Ticker'].tolist() if 'Curtosis' in res_norm.columns else []
 
     if nivel == 'basico':
         add("### Distribución de los retornos")
-        if not no_norm:
-            add("✅ **Los retornos siguen aproximadamente una distribución normal.**")
+        if not no_norm and not adv_norm:
+            add("**Los retornos siguen aproximadamente una distribución normal.**")
             add("Esto valida el uso de Markowitz y el CAPM sin restricciones adicionales. "
                 "Los modelos asumen que los retornos se distribuyen de forma simétrica alrededor "
                 "de su media — y los datos son consistentes con ese supuesto.")
             add("**Acción:** ninguna. El análisis continúa con sus supuestos intactos.")
-        else:
+        elif no_norm:
             add(f"⚠️ **Los retornos de `{no_norm}` no siguen distribución normal.**")
             add("Esto es la norma, no la excepción, en finanzas reales: los mercados tienen "
                 "más días extremos de los que la distribución normal predice. "
@@ -705,13 +716,20 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
                 "paramétrico subestimará el riesgo real en esos activos.")
             add("**Acción:** en la Fase 3c, usar el VaR histórico y el CVaR como métricas "
                 "de riesgo primarias en lugar del VaR paramétrico.")
+            if adv_norm:
+                add(f"🟡 Adicionalmente, `{adv_norm}` muestran evidencia mixta entre JB y SW.")
+        else:
+            add(f"🟡 **Los retornos de `{adv_norm}` muestran evidencia mixta de normalidad.**")
+            add("Jarque-Bera y Shapiro-Wilk no coinciden completamente — no es un rechazo "
+                "claro, pero conviene tenerlo presente al interpretar el VaR paramétrico.")
+            add("**Acción:** los modelos aplican con normalidad razonable, sin requerir cambios.")
     else:
         add("### Normalidad univariante (Jarque-Bera + Shapiro-Wilk)")
-        if not no_norm:
-            add("✅ **No se rechaza H0 de normalidad en ningún activo.**")
+        if not no_norm and not adv_norm:
+            add("**No se rechaza H0 de normalidad en ningún activo.**")
             add("Asimetría y curtosis en exceso dentro de rangos aceptables. "
                 "Los supuestos de Gauss-Markov aplicables.")
-        else:
+        elif no_norm:
             add(f"⚠️ **`{no_norm}` rechazan H0 de normalidad.**")
             if kurt_alta:
                 add(f"Leptocurtosis en `{kurt_alta}` — colas más pesadas que la normal. "
@@ -720,6 +738,11 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
                     "CVaR histórico es la métrica adecuada.")
             add("Los estimadores MCO siguen siendo insesgados (Gauss-Markov no requiere normalidad), "
                 "pero los intervalos de confianza basados en t-Student pierden exactitud.")
+        else:
+            add(f"🟡 **`{adv_norm}` en zona límite entre JB y SW.** No hay rechazo estadístico "
+                "claro, pero el resultado no es tan concluyente como en el resto de la muestra.")
+        if adv_norm and no_norm:
+            add(f"🟡 `{adv_norm}` adicionalmente muestran evidencia mixta entre JB y SW.")
 
     add()
 
@@ -738,7 +761,7 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
             add("**Acción:** los resultados de riesgo (VaR, CVaR) son más conservadores "
                 "de lo que Markowitz sugiere. Presta especial atención al análisis de estrés.")
         else:
-            add("✅ **La volatilidad es aproximadamente constante en todos los activos.**")
+            add("**La volatilidad es aproximadamente constante en todos los activos.**")
             add("No hay evidencia de que los movimientos grandes se agrupen en el tiempo, "
                 "lo que valida el uso de la desviación estándar como medida de riesgo.")
             add("**Acción:** ninguna. Markowitz aplica bien.")
@@ -750,7 +773,7 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
                 "Implicación: los pesos óptimos de Markowitz son sensibles al régimen de "
                 "volatilidad vigente. GARCH(1,1) modelaría esta dinámica (Capa 2).")
         else:
-            add("✅ **Sin efectos ARCH en frecuencia mensual.**")
+            add("**Sin efectos ARCH en frecuencia mensual.**")
             add("Puede ser consistente con Drost & Nijman (1993): la agregación temporal "
                 "tiende a suavizar los efectos ARCH presentes en frecuencias más altas.")
 
@@ -769,7 +792,7 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
                 "justo cuando más se necesita la diversificación.")
             add("**Acción:** complementar Markowitz con el CVaR y el análisis de estrés histórico.")
         elif 'NORMAL' in diag_mardia:
-            add("✅ **El portafolio cumple los supuestos de normalidad multivariante.**")
+            add("**El portafolio cumple los supuestos de normalidad multivariante.**")
             add("La optimización de Markowitz aplica con sus supuestos estadísticos intactos.")
     else:
         add("### Normalidad multivariante (Mardia, 1970 + Henze-Zirkler)")
@@ -781,7 +804,7 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
                 "La frontera eficiente de Markowitz subestima el riesgo de portafolio "
                 "en escenarios de estrés.")
         elif 'NORMAL' in diag_mardia:
-            add("✅ **No se rechaza normalidad multivariante.**")
+            add("**No se rechaza normalidad multivariante.**")
             add("La estructura de covarianzas de Markowitz captura adecuadamente "
                 "la dependencia entre activos.")
 
@@ -800,7 +823,7 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
                 "que el modelo no captura.")
             add("**Acción:** ninguna inmediata. Tener en cuenta al interpretar los pesos.")
         else:
-            add("✅ **Las relaciones entre activos son aproximadamente lineales.**")
+            add("**Las relaciones entre activos son aproximadamente lineales.**")
             add("La correlación de Pearson captura bien la dependencia real — "
                 "Markowitz no pierde información relevante al usar la covarianza.")
     else:
@@ -814,36 +837,52 @@ def asistente_fase2(res_estac, res_norm, res_arch, res_mardia,
             add("La matriz de covarianza de Markowitz puede ser una aproximación imprecisa "
                 "para estos pares. DCC-GARCH modelaría la dependencia dinámica (Capa 2).")
         else:
-            add("✅ **Correlaciones de Pearson y Spearman son consistentes en todos los pares.**")
+            add("**Correlaciones de Pearson y Spearman son consistentes en todos los pares.**")
             add("No hay evidencia de dependencia no lineal relevante.")
 
     add()
 
     # --- HME ---
     hme_rechazada = res_hme[res_hme['Semaforo'] == 'ROJO']['Ticker'].tolist() if not res_hme.empty else []
+    hme_advertencia = res_hme[res_hme['Semaforo'] == 'AMARILLO']['Ticker'].tolist() if not res_hme.empty else []
 
     if nivel == 'basico':
         add("### ¿Se puede predecir el comportamiento futuro con datos pasados?")
         if hme_rechazada:
-            add(f"🟡 **En `{hme_rechazada}`, los retornos pasados tienen cierto poder predictivo.**")
+            add(f"🔴 **En `{hme_rechazada}`, los retornos pasados tienen cierto poder predictivo.**")
             add("Los mercados perfectamente eficientes no permiten predicciones basadas en "
                 "precios históricos. Que esto se rechace puede indicar ineficiencias reales "
                 "o simplemente que el período analizado tuvo patrones atípicos.")
             add("**Acción:** no actuar sobre esto directamente. Es contexto para interpretar "
                 "los modelos de factores con mayor atención.")
+            if hme_advertencia:
+                add(f"🟡 Además, `{hme_advertencia}` muestran evidencia mixta — no es un "
+                    "rechazo claro, pero tampoco una confirmación limpia de eficiencia.")
+        elif hme_advertencia:
+            add(f"🟡 **En `{hme_advertencia}`, la evidencia es mixta** — no se rechaza con "
+                "fuerza la hipótesis de mercado eficiente, pero el resultado está en el límite.")
+            add("No es una violación clara, pero tampoco una confirmación tan sólida como "
+                "en el resto del portafolio. Se puede interpretar con normalidad.")
         else:
-            add("✅ **Los retornos son consistentes con mercados eficientes en forma débil.**")
+            add("**Los retornos son consistentes con mercados eficientes en forma débil.**")
             add("No hay evidencia de que los precios pasados predigan los futuros — "
                 "los modelos de factores parten de una base estadísticamente sólida.")
     else:
         add("### Hipótesis de Mercado Eficiente débil (Lo & MacKinlay, 1988)")
         if hme_rechazada:
-            add(f"🟡 **`{hme_rechazada}` rechazan la hipótesis de caminata aleatoria.**")
+            add(f"🔴 **`{hme_rechazada}` rechazan la hipótesis de caminata aleatoria.**")
             add("El ratio de varianza overlapping es significativamente distinto de 1 "
                 "en al menos un horizonte temporal. Posibles causas: autocorrelación positiva "
                 "de corto plazo (momentum), efectos de microestructura, o iliquidez.")
+            if hme_advertencia:
+                add(f"🟡 `{hme_advertencia}` muestran ratio de varianza en zona límite — "
+                    "no rechazo claro, requiere lectura con cautela.")
+        elif hme_advertencia:
+            add(f"🟡 **`{hme_advertencia}` en zona límite del ratio de varianza** — "
+                "no hay rechazo estadístico claro de la caminata aleatoria, pero el resultado "
+                "no es tan concluyente como el resto de la muestra.")
         else:
-            add("✅ **No se rechaza la caminata aleatoria en ningún activo.**")
+            add("**No se rechaza la caminata aleatoria en ningún activo.**")
             add("Evidencia consistente con HME débil — los retornos pasados no contienen "
                 "información predictiva explotable.")
 

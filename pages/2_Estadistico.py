@@ -8,10 +8,10 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 from modulos.errores import interpretar_error
-from config import get_colores, get_plotly_layout
+from config import get_colores, get_plotly_layout, get_plotly_config, get_legend_style
 
 st.set_page_config(page_title="Estadístico · QuantαfolyΩ", page_icon="📐", layout="wide")
-st.title("📐 Fase 2 — Análisis Estadístico Preliminar")
+st.title("Análisis Estadístico Preliminar")
 
 if st.session_state.get("retornos") is None:
     st.warning("Primero ejecuta la **📥 Fase 1 — Datos**.")
@@ -58,7 +58,7 @@ if ejecutar:
     st.session_state["semaforo_f2"]  = resultado["semaforo_f2"]
     st.session_state["narrativa_f2"] = resultado["narrativa_f2"]
     st.session_state["fase_completada"]["estadistico"] = True
-    st.success("✅ Fase 2 completada.")
+    st.success("Fase 2 completada.")
 
 # --- Mostrar resultados ---
 if st.session_state.get("semaforo_f2") is not None:
@@ -93,10 +93,10 @@ if st.session_state.get("semaforo_f2") is not None:
         _inconc   = res_estac[res_estac["Semaforo"] == "AMARILLO"]["Ticker"].tolist()
         if not _no_estac and not _inconc:
             if nivel_asistente == "basico":
-                st.success("✅ Todos los activos tienen retornos estables en el tiempo. "
+                st.success("Todos los activos tienen retornos estables en el tiempo. "
                            "Los modelos estadísticos que vienen pueden aplicarse con confianza.")
             else:
-                st.success("✅ Estacionariedad confirmada en todos los activos (ADF + KPSS consistentes). "
+                st.success("Estacionariedad confirmada en todos los activos (ADF + KPSS consistentes). "
                            "Supuesto de covarianza-estacionariedad satisfecho para MCO y Markowitz.")
         elif _no_estac:
             if nivel_asistente == "basico":
@@ -127,7 +127,7 @@ if st.session_state.get("semaforo_f2") is not None:
                            "en errores (corrección no paramétrica de Newey-West). "
                            "Divergencia sugiere estructura de error compleja — considerar KPSS como desempate.")
         else:
-            st.success("✅ ADF y Phillips-Perron coinciden en todos los activos.")
+            st.success("ADF y Phillips-Perron coinciden en todos los activos.")
 
     with tab3:
         st.dataframe(res_norm.set_index("Ticker"), width="stretch")
@@ -137,10 +137,10 @@ if st.session_state.get("semaforo_f2") is not None:
         _mix_norm = res_norm[res_norm["Semaforo"] == "AMARILLO"]["Ticker"].tolist()
         if not _no_norm and not _mix_norm:
             if nivel_asistente == "basico":
-                st.success("✅ Los retornos siguen una distribución normal. "
+                st.success("Los retornos siguen una distribución normal. "
                            "Los modelos de Markowitz y VaR paramétrico aplican sin restricciones.")
             else:
-                st.success("✅ No se rechaza normalidad (JB + SW). "
+                st.success("No se rechaza normalidad (JB + SW). "
                            "Supuesto distribucional de Markowitz (1952) satisfecho. "
                            "VaR paramétrico es una aproximación válida.")
         elif _no_norm:
@@ -182,7 +182,7 @@ if st.session_state.get("semaforo_f2") is not None:
             margin=dict(l=40, r=20, t=40, b=20),
             **get_plotly_layout(_tema),
         )
-        st.plotly_chart(fig, width="stretch")
+        st.plotly_chart(fig, width="stretch", config=get_plotly_config())
 
     with tab4:
         pearson  = res_spearman["pearson"]
@@ -208,10 +208,10 @@ if st.session_state.get("semaforo_f2") is not None:
                            "DCC-GARCH modelaría la dependencia dinámica con mayor precisión.")
         else:
             if nivel_asistente == "basico":
-                st.success("✅ Las relaciones entre activos son lineales. "
+                st.success("Las relaciones entre activos son lineales. "
                            "Markowitz captura bien la dependencia real — los pesos óptimos son confiables.")
             else:
-                st.success("✅ Pearson y Spearman son consistentes en todos los pares (|Δ| ≤ 0.10). "
+                st.success("Pearson y Spearman son consistentes en todos los pares (|Δ| ≤ 0.10). "
                            "No hay evidencia de dependencia no lineal relevante. "
                            "La estructura de covarianza es una representación adecuada.")
 
@@ -231,10 +231,10 @@ if st.session_state.get("semaforo_f2") is not None:
                            "Errores estándar de CAPM/FF3 pueden estar sesgados — usar HAC (Newey-West).")
         else:
             if nivel_asistente == "basico":
-                st.success("✅ Los retornos no muestran patrones predecibles en el tiempo. "
+                st.success("Los retornos no muestran patrones predecibles en el tiempo. "
                            "Consistente con mercados eficientes en forma débil.")
             else:
-                st.success("✅ Ljung-Box no rechaza independencia serial en ningún activo. "
+                st.success("Ljung-Box no rechaza independencia serial en ningún activo. "
                            "Supuesto de no autocorrelación de MCO satisfecho.")
 
     with tab6:
@@ -255,10 +255,10 @@ if st.session_state.get("semaforo_f2") is not None:
                            "VaR histórico es la métrica primaria; GARCH modelaría la dinámica (Capa 2).")
         else:
             if nivel_asistente == "basico":
-                st.success("✅ La volatilidad es relativamente estable en el tiempo. "
+                st.success("La volatilidad es relativamente estable en el tiempo. "
                            "El VaR paramétrico es una aproximación razonable del riesgo real.")
             else:
-                st.success("✅ ARCH-LM no rechaza homocedasticidad. "
+                st.success("ARCH-LM no rechaza homocedasticidad. "
                            "Varianza condicional constante — supuesto de homocedasticidad de MCO satisfecho.")
 
     with tab7:
@@ -282,4 +282,4 @@ if st.session_state.get("semaforo_f2") is not None:
             st.markdown(narrativa)
 
     st.divider()
-    st.info("✅ Estadística lista. Continúa con **📊 3a Markowitz** en el menú lateral.")
+    st.info("Estadística lista. Continúa con **📊 3a Markowitz** en el menú lateral.")

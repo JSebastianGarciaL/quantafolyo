@@ -6,10 +6,10 @@
 import streamlit as st
 import pandas as pd
 from modulos.errores import interpretar_error
-from config import get_colores, get_plotly_layout
+from config import get_colores, get_plotly_layout, get_plotly_config, get_legend_style
 
 st.set_page_config(page_title="Riesgo · QuantαfolyΩ", page_icon="⚠️", layout="wide")
-st.title("⚠️ Fase 3c — Métricas de Riesgo")
+st.title("Métricas de Riesgo")
 
 if st.session_state.get("retornos") is None:
     st.warning("Primero ejecuta la **📥 Fase 1 — Datos**.")
@@ -68,7 +68,7 @@ if ejecutar:
     st.session_state["fig_riesgo"]     = resultado["fig_riesgo"]
     st.session_state["narrativa_3c"]   = resultado["narrativa_3c"]
     st.session_state["fase_completada"]["riesgo"] = True
-    st.success("✅ Fase 3c completada.")
+    st.success("Fase 3c completada.")
 
 # --- Resultados ---
 if st.session_state.get("res_var") is not None:
@@ -88,7 +88,10 @@ if st.session_state.get("res_var") is not None:
     with tab1:
         _tema    = st.get_option("theme.base") or "light"
         _colores = get_colores(_tema)
-        fig_riesgo.update_layout(**get_plotly_layout(_tema))
+        fig_riesgo.update_layout(
+            legend=get_legend_style(_tema),
+            **get_plotly_layout(_tema),
+        )
         for trace in fig_riesgo.data:
             name     = getattr(trace, "name", "") or ""
             tipo     = trace.type
@@ -116,7 +119,7 @@ if st.session_state.get("res_var") is not None:
                     _pal = [_colores["acento_principal"], _colores["alerta"],
                             _colores["acento_secundario"], _colores["contraste"]]
                     trace.update(marker_color=_pal[_idx % len(_pal)])
-        st.plotly_chart(fig_riesgo, width="stretch")
+        st.plotly_chart(fig_riesgo, width="stretch", config=get_plotly_config())
 
     with tab2:
         st.markdown("**VaR y CVaR por nivel de confianza y método**")
@@ -180,7 +183,7 @@ if st.session_state.get("res_var") is not None:
         if nivel_asistente == "basico":
             if _kupiec_ok_todos:
                 st.success(
-                    "✅ El modelo de riesgo estuvo bien calibrado — "
+                    "El modelo de riesgo estuvo bien calibrado — "
                     "las pérdidas extremas ocurrieron con la frecuencia esperada. "
                     "Puedes confiar en el VaR como referencia para este portafolio."
                 )
@@ -193,7 +196,7 @@ if st.session_state.get("res_var") is not None:
         else:
             if _kupiec_ok_todos:
                 st.success(
-                    "✅ Kupiec POF no rechaza H0 en ningún nivel de confianza. "
+                    "Kupiec POF no rechaza H0 en ningún nivel de confianza. "
                     "Frecuencia de violaciones consistente con la probabilidad teórica."
                 )
             else:
@@ -228,7 +231,7 @@ if st.session_state.get("res_var") is not None:
                 if nivel_asistente == "basico":
                     if float(_sharpe) > 0.5:
                         st.success(
-                            f"✅ Sharpe de **{float(_sharpe):.2f}** — buena compensación por el riesgo asumido. "
+                            f"Sharpe de **{float(_sharpe):.2f}** — buena compensación por el riesgo asumido. "
                             "Por encima de 0.5 se considera un desempeño sólido."
                         )
                     elif float(_sharpe) > 0:
@@ -243,10 +246,10 @@ if st.session_state.get("res_var") is not None:
                         )
                 else:
                     if float(_sharpe) > 1.0:
-                        st.success(f"✅ Sharpe {float(_sharpe):.3f} — excepcional (> 1.0). "
+                        st.success(f"Sharpe {float(_sharpe):.3f} — excepcional (> 1.0). "
                                    "Consistente con alpha significativo sobre el benchmark.")
                     elif float(_sharpe) > 0.5:
-                        st.success(f"✅ Sharpe {float(_sharpe):.3f} — sólido (0.5–1.0). "
+                        st.success(f"Sharpe {float(_sharpe):.3f} — sólido (0.5–1.0). "
                                    "Desempeño ajustado por riesgo por encima de la media histórica del mercado.")
                     elif float(_sharpe) > 0:
                         st.warning(f"🟡 Sharpe {float(_sharpe):.3f} — positivo pero moderado. "
@@ -286,4 +289,4 @@ if st.session_state.get("res_var") is not None:
             st.markdown(narrativa)
 
     st.divider()
-    st.info("✅ Riesgo listo. Continúa con **✅ 4 Verificación** en el menú lateral.")
+    st.info("Riesgo listo. Continúa con **4 Verificación** en el menú lateral.")

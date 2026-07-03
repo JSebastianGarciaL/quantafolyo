@@ -1,3 +1,8 @@
+# ⚠️ LEGACY — ya no se usa. Desde ahora .streamlit/config.toml define
+# ambos temas nativamente con [theme.light]/[theme.dark] y el selector
+# real está en el menú Settings de la app. Este archivo se conserva solo
+# como referencia de los valores hex originales.
+#
 # QuantαfolyΩ — Tema modo oscuro (frío)
 # Instrucciones:
 #   1. Crea la carpeta .streamlit/ dentro de portfoliolab_streamlit\ si no existe

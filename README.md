@@ -8,6 +8,47 @@ Desarrollado como proyecto de valor profesional por un estudiante de economía. 
 
 ---
 
+## Aviso Legal y de Responsabilidad
+
+QuantαfolyΩ es un proyecto de carácter educativo y experimental, desarrollado
+con asistencia de herramientas de inteligencia artificial. Su propósito es
+ilustrar la aplicación práctica de métodos cuantitativos de análisis de
+portafolios (optimización de Markowitz, modelos de factores, métricas de
+riesgo) con fines de aprendizaje y demostración técnica. No tiene fines
+comerciales ni genera ingresos; su distribución y uso son de carácter
+gratuito.
+
+Esta aplicación no constituye, ni debe interpretarse como, asesoría
+financiera, de inversión, legal o fiscal. Los resultados generados —incluyendo
+retornos esperados, métricas de riesgo, optimizaciones de portafolio y
+cualquier otro indicador— son producto de modelos estadísticos con supuestos
+y limitaciones inherentes, y no representan una recomendación de compra,
+venta o mantenimiento de ningún instrumento financiero.
+
+El uso de esta herramienta, así como cualquier decisión financiera adoptada
+con base en la información que proporciona, es responsabilidad exclusiva del
+usuario. El desarrollador no asume responsabilidad alguna por pérdidas, daños
+directos o indirectos, ni por cualquier perjuicio derivado del uso de esta
+aplicación o de las decisiones tomadas a partir de sus resultados.
+
+**Sin afiliación con terceros.** QuantαfolyΩ no está afiliado, respaldado ni
+patrocinado por Yahoo Finance, S&P Dow Jones Indices, la Ken French Data
+Library, ni por ninguna de las empresas cuyos tickers puedan analizarse con
+esta herramienta. Las marcas y nombres de terceros mencionados se usan
+únicamente con fines descriptivos e identificativos.
+
+**Software "tal cual".** Este software se distribuye sin garantía de ningún
+tipo, expresa o implícita, incluyendo garantías de funcionamiento
+ininterrumpido, ausencia de errores o exactitud de los datos o cálculos
+mostrados. Ver [`LICENSE`](LICENSE) (MIT) para los términos completos.
+
+**Sobre el manejo de datos.** Esta aplicación no solicita, recopila,
+almacena ni comparte datos personales de sus usuarios. La información
+ingresada (tickers, parámetros de análisis) se procesa únicamente durante
+la sesión activa y no persiste una vez finalizada.
+
+---
+
 ## Capturas
 
 ### Página de inicio
@@ -196,3 +237,5 @@ quantafolyo/
 ---
 
 *Datos: Yahoo Finance · Benchmark: S&P 500 · Divisa base: USD*
+
+*Distribuido bajo licencia [MIT](LICENSE). Ver [Aviso Legal y de Responsabilidad](#aviso-legal-y-de-responsabilidad) arriba.*

@@ -5,10 +5,10 @@
 
 import streamlit as st
 from modulos.errores import interpretar_error
-from config import get_colores, get_plotly_layout
+from config import get_colores, get_plotly_layout, get_plotly_config, get_legend_style
 
 st.set_page_config(page_title="Factores · QuantαfolyΩ", page_icon="📐", layout="wide")
-st.title("📐 Fase 3b — Modelos de Factores")
+st.title("Modelos de Factores")
 
 if st.session_state.get("retornos") is None:
     st.warning("Primero ejecuta la **📥 Fase 1 — Datos**.")
@@ -64,7 +64,7 @@ if ejecutar:
     st.session_state["fig_betas"]    = resultado["fig_betas"]
     st.session_state["narrativa_3b"] = resultado["narrativa_3b"]
     st.session_state["fase_completada"]["factores"] = True
-    st.success("✅ Fase 3b completada.")
+    st.success("Fase 3b completada.")
 
 # --- Resultados ---
 if st.session_state.get("res_capm") is not None:
@@ -83,11 +83,14 @@ if st.session_state.get("res_capm") is not None:
     with tab1:
         _tema    = st.get_option("theme.base") or "light"
         _colores = get_colores(_tema)
-        fig_betas.update_layout(**get_plotly_layout(_tema))
+        fig_betas.update_layout(
+            legend=get_legend_style(_tema),
+            **get_plotly_layout(_tema),
+        )
         _seq = _colores["graf_seq"]
         for i, trace in enumerate(fig_betas.data):
             trace.update(marker=dict(color=_seq[i % len(_seq)]))
-        st.plotly_chart(fig_betas, width="stretch")
+        st.plotly_chart(fig_betas, width="stretch", config=get_plotly_config())
 
     with tab2:
         st.markdown("**CAPM — Sharpe (1964), Lintner (1965)**")
@@ -111,16 +114,16 @@ if st.session_state.get("res_capm") is not None:
                 )
             elif _beta_port < 0.9:
                 st.info(
-                    f"🛡️ El portafolio tiene una beta promedio de **{_beta_port:.2f}** — "
+                    f"El portafolio tiene una beta promedio de **{_beta_port:.2f}** — "
                     "más defensivo que el mercado. Sube menos en los rallies, pero cae menos en las crisis."
                 )
             else:
                 st.info(
-                    f"↔️ Beta del portafolio: **{_beta_port:.2f}** — sigue al mercado de cerca. "
+                    f"Beta del portafolio: **{_beta_port:.2f}** — sigue al mercado de cerca. "
                     "El comportamiento esperado es similar al S&P 500."
                 )
             if _alpha_sig:
-                st.success(f"✅ **{_alpha_sig}** tienen alpha significativo — "
+                st.success(f"**{_alpha_sig}** tienen alpha significativo — "
                            "generan retorno más allá de lo que explica el riesgo de mercado.")
         else:
             st.info(
@@ -128,7 +131,7 @@ if st.session_state.get("res_capm") is not None:
                 + ("Beta > 1: portafolio agresivo." if _beta_port > 1 else "Beta < 1: portafolio defensivo.")
             )
             if _alpha_sig:
-                st.success(f"✅ Alpha de Jensen significativo en **{_alpha_sig}** (p < 0.05). "
+                st.success(f"Alpha de Jensen significativo en **{_alpha_sig}** (p < 0.05). "
                            "Retorno anormal positivo no explicado por el factor de mercado.")
             if _blue_falla:
                 st.warning(f"⚠️ **{_blue_falla}**: residuos CAPM violan supuestos Gauss-Markov. "
@@ -201,4 +204,4 @@ if st.session_state.get("res_capm") is not None:
             st.markdown(narrativa)
 
     st.divider()
-    st.info("✅ Factores listos. Continúa con **⚠️ 3c Riesgo** en el menú lateral.")
+    st.info("Factores listos. Continúa con **⚠️ 3c Riesgo** en el menú lateral.")

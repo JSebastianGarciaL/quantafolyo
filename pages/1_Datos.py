@@ -7,11 +7,11 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from config import UMBRAL_DATOS_FALTANTES, get_colores, get_plotly_layout
+from config import UMBRAL_DATOS_FALTANTES, get_colores, get_plotly_layout, get_plotly_config, get_legend_style
 from modulos.errores import interpretar_error
 
 st.set_page_config(page_title="Datos · QuantαfolyΩ", page_icon="📥", layout="wide")
-st.title("📥 Fase 1 — Módulo de Datos")
+st.title("Módulo de Datos")
 
 # --- Verificar que el usuario configuró el portafolio ---
 if "tickers_usuario" not in st.session_state or st.session_state["tickers_usuario"] is None:
@@ -65,7 +65,7 @@ if ejecutar:
     st.session_state["fase_completada"]["datos"] = True
 
     st.success(
-        f"✅ Fase 1 completada — "
+        f"Fase 1 completada — "
         f"{resultado['retornos'].shape[0]} periodos × "
         f"{resultado['retornos'].shape[1]} activos"
     )
@@ -129,11 +129,11 @@ if st.session_state.get("retornos") is not None:
             title="Retornos acumulados (base 0)",
             yaxis_tickformat=".0%",
             height=420,
-            legend=dict(orientation="h", y=-0.2, x=0),
-            margin=dict(l=40, r=20, t=40, b=60),
+            legend=get_legend_style(_tema),
+            margin=dict(l=40, r=20, t=40, b=70),
             **get_plotly_layout(_tema),
         )
-        st.plotly_chart(fig, width="stretch")
+        st.plotly_chart(fig, width="stretch", config=get_plotly_config())
 
         # --- Interpretación inline: Retornos acumulados ---
         _ret_final     = retornos_acum.iloc[-1]
@@ -227,4 +227,4 @@ if st.session_state.get("retornos") is not None:
             st.info("Sin metadata disponible.")
 
     st.divider()
-    st.info("✅ Datos listos. Continúa con **📐 2 Estadístico** en el menú lateral.")
+    st.info("Datos listos. Continúa con **📐 2 Estadístico** en el menú lateral.")

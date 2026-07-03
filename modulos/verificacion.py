@@ -92,7 +92,7 @@ def prueba_spanning(retornos: pd.DataFrame,
     logs.append(f"  Resumen: {n_expande}/{n_total} activos expanden el conjunto de oportunidades.")
 
     if n_expande >= n_total // 2:
-        logs.append("  ✅ La selección tiene valor de diversificación demostrable.")
+        logs.append("  La selección tiene valor de diversificación demostrable.")
     else:
         logs.append("  ⚠️ Pocos activos aportan valor más allá del S&P 500.")
 
@@ -256,7 +256,7 @@ def verificar_consistencia(capm_df: pd.DataFrame,
                         f"{'🔴 SIGNIFICATIVO' if p_a < alpha else '✅'}")
 
     if not problemas:
-        logs.append("  ✅ Todos los modelos son consistentes entre sí.")
+        logs.append("  Todos los modelos son consistentes entre sí.")
     else:
         logs.append(f"  ⚠️ {len(problemas)} inconsistencia(s):")
         for p in problemas:
@@ -350,7 +350,7 @@ def asistente_verificacion(res_spanning: pd.DataFrame,
         add("### ¿Vale la pena este portafolio frente a simplemente comprar el S&P 500?")
         if activos_expanden:
             pct = len(activos_expanden) / n_total * 100
-            add(f"✅ **Sí — {len(activos_expanden)} de {n_total} activos aportan oportunidades "
+            add(f"**Sí — {len(activos_expanden)} de {n_total} activos aportan oportunidades "
                 f"que no están disponibles en el índice.**")
             add(f"Estadísticamente, `{activos_expanden}` expanden el conjunto de oportunidades "
                 "de inversión más allá del S&P 500. Construir este portafolio tiene sentido.")
@@ -363,7 +363,7 @@ def asistente_verificacion(res_spanning: pd.DataFrame,
 
         add("### ¿Podemos confiar en las betas para el futuro?")
         if not activos_inestables and not activos_cambio:
-            add("✅ **Sí — la sensibilidad al mercado fue estable a lo largo del período.**")
+            add("**Sí — la sensibilidad al mercado fue estable a lo largo del período.**")
             add("Las betas calculadas son un indicador confiable del comportamiento esperado "
                 "del portafolio frente al mercado.")
         else:
@@ -378,7 +378,7 @@ def asistente_verificacion(res_spanning: pd.DataFrame,
 
         add("### ¿El modelo de riesgo fue honesto?")
         if bt_ok:
-            add("✅ **Sí — el VaR predijo correctamente la frecuencia de pérdidas extremas.**")
+            add("**Sí — el VaR predijo correctamente la frecuencia de pérdidas extremas.**")
             add("El modelo de riesgo está bien calibrado para este portafolio.")
         else:
             add("⚠️ **El VaR no estuvo bien calibrado.** "
@@ -387,7 +387,7 @@ def asistente_verificacion(res_spanning: pd.DataFrame,
 
         add("### ¿Los tres modelos de factores cuentan la misma historia?")
         if not problemas:
-            add("✅ **Sí — CAPM, Fama-French y APT son coherentes entre sí.**")
+            add("**Sí — CAPM, Fama-French y APT son coherentes entre sí.**")
             add("Cada modelo más complejo explica más del retorno de los activos, "
                 "sin contradecir las conclusiones del anterior. El análisis es internamente consistente.")
         else:
@@ -409,7 +409,7 @@ def asistente_verificacion(res_spanning: pd.DataFrame,
 
         n_exp = len(activos_expanden)
         if n_exp > 0:
-            add(f"\n✅ {n_exp}/{n_total} activos rechazan H0 — expanden el conjunto de oportunidades.")
+            add(f"\n{n_exp}/{n_total} activos rechazan H0 — expanden el conjunto de oportunidades.")
         else:
             add(f"\n⚠️ Ningún activo rechaza H0 — no hay expansión estadísticamente significativa.")
         add()
@@ -429,7 +429,7 @@ def asistente_verificacion(res_spanning: pd.DataFrame,
 
         add("### Consistencia entre modelos")
         if not problemas:
-            add("✅ R² ajustado creciente CAPM→FF3→APT. Betas de mercado CAPM/FF3 consistentes.")
+            add("R² ajustado creciente CAPM→FF3→APT. Betas de mercado CAPM/FF3 consistentes.")
         else:
             for p in problemas:
                 add(f"⚠️ {p}")

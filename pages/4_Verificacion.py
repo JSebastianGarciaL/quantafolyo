@@ -8,7 +8,7 @@ import pandas as pd
 from modulos.errores import interpretar_error
 
 st.set_page_config(page_title="Verificación · QuantαfolyΩ", page_icon="✅", layout="wide")
-st.title("✅ Verificación Consolidada — Fase 3")
+st.title("Verificación Consolidada")
 
 # Verificar prerrequisitos
 faltan = []
@@ -74,7 +74,7 @@ if ejecutar:
     st.session_state["semaforo_f3"]     = resultado["semaforo_f3"]
     st.session_state["narrativa_ver"]   = resultado["narrativa_ver"]
     st.session_state["fase_completada"]["verificacion"] = True
-    st.success("✅ Verificación completada.")
+    st.success("Verificación completada.")
 
 # --- Resultados ---
 if st.session_state.get("semaforo_f3") is not None:
@@ -91,7 +91,7 @@ if st.session_state.get("semaforo_f3") is not None:
     ])
 
     with tab1:
-        st.markdown("### Diagnóstico consolidado Fase 3")
+        st.markdown("### Diagnóstico consolidado")
         st.dataframe(semaforo_f3.set_index("Prueba"), width="stretch")
         st.caption("🟢 Validado · 🟡 Advertencia · 🔴 Violación")
 
@@ -122,12 +122,12 @@ if st.session_state.get("semaforo_f3") is not None:
         if nivel_asistente == "basico":
             if _n_expande == _n_total:
                 st.success(
-                    f"✅ Los **{_n_total} activos** aportan oportunidades que no están en el S&P 500. "
+                    f"Los **{_n_total} activos** aportan oportunidades que no están en el S&P 500. "
                     "Construir este portafolio tiene valor real — no es simplemente duplicar el índice."
                 )
             elif _n_expande >= _n_total // 2:
                 st.success(
-                    f"✅ **{_n_expande} de {_n_total} activos** ({', '.join(_expanden)}) "
+                    f"**{_n_expande} de {_n_total} activos** ({', '.join(_expanden)}) "
                     "expanden las oportunidades más allá del S&P 500. "
                     "El portafolio tiene valor de diversificación demostrable."
                 )
@@ -140,7 +140,7 @@ if st.session_state.get("semaforo_f3") is not None:
         else:
             if _n_expande >= _n_total // 2:
                 st.success(
-                    f"✅ {_n_expande}/{_n_total} activos rechazan H0 de spanning (α=0 ∩ β=1). "
+                    f"{_n_expande}/{_n_total} activos rechazan H0 de spanning (α=0 ∩ β=1). "
                     "El conjunto de oportunidades de inversión es estadísticamente más amplio que el benchmark."
                 )
             else:
@@ -163,7 +163,7 @@ if st.session_state.get("semaforo_f3") is not None:
         if nivel_asistente == "basico":
             if not _inestables and not _cambio_mod:
                 st.success(
-                    "✅ La sensibilidad al mercado fue estable a lo largo de todo el período. "
+                    "La sensibilidad al mercado fue estable a lo largo de todo el período. "
                     "Las betas calculadas son representativas del comportamiento esperado del portafolio."
                 )
             else:
@@ -181,7 +181,7 @@ if st.session_state.get("semaforo_f3") is not None:
         else:
             if not _inestables and not _cambio_mod:
                 st.success(
-                    "✅ Prueba de Chow no rechaza estabilidad de parámetros en ningún activo. "
+                    "Prueba de Chow no rechaza estabilidad de parámetros en ningún activo. "
                     "Supuesto de coeficientes constantes de MCO satisfecho en el período analizado."
                 )
             else:
@@ -201,7 +201,7 @@ if st.session_state.get("semaforo_f3") is not None:
     with tab4:
         st.markdown("**Consistencia entre modelos (CAPM → FF3 → APT)**")
         if not problemas:
-            st.success("✅ Todos los modelos son consistentes entre sí.")
+            st.success("Todos los modelos son consistentes entre sí.")
         else:
             for p in problemas:
                 st.warning(f"⚠️ {p}")
@@ -211,4 +211,4 @@ if st.session_state.get("semaforo_f3") is not None:
             st.markdown(narrativa)
 
     st.divider()
-    st.info("✅ Verificación lista. Continúa con **📄 5 Reporte** en el menú lateral.")
+    st.info("Verificación lista. Continúa con **📄 5 Reporte** en el menú lateral.")

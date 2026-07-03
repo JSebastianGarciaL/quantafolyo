@@ -5,7 +5,7 @@
 # =============================================================================
 
 import streamlit as st
-from config import MIN_ACTIVOS, MAX_ACTIVOS, TICKER_BENCHMARK, DIVISA_BASE
+from config import MIN_ACTIVOS, MAX_ACTIVOS, TICKER_BENCHMARK, DIVISA_BASE, get_colores
 
 # --- Configuración de página ---
 st.set_page_config(
@@ -15,27 +15,36 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# --- Colores del logo según tema activo (claro/oscuro) ---
+# CORRECCIÓN: antes hardcodeados a la paleta clara; ahora se leen de
+# get_colores() con el mismo patrón usado en el resto de la app
+# (st.get_option("theme.base")), para que el logo no choque en modo oscuro.
+_tema_app     = st.get_option("theme.base") or "light"
+_colores_app  = get_colores(_tema_app)
+_color_alpha  = _colores_app["acento_principal"]
+_color_omega  = _colores_app["alerta"]
+
 # --- Tipografía y estilos globales ---
-st.markdown("""
+st.markdown(f"""
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-.qaf-logo {
+.qaf-logo {{
     font-family: 'Space Grotesk', sans-serif;
     font-size: 2.2rem;
     font-weight: 600;
     letter-spacing: -0.5px;
     line-height: 1.1;
-}
-.qaf-logo .alpha { color: #D76F02; }
-.qaf-logo .omega { color: #985D73; }
-h1, h2, h3 {
+}}
+.qaf-logo .alpha {{ color: {_color_alpha}; }}
+.qaf-logo .omega {{ color: {_color_omega}; }}
+h1, h2, h3 {{
     font-family: 'Space Grotesk', sans-serif !important;
     font-weight: 500 !important;
-}
-[data-testid="stMetricValue"] {
+}}
+[data-testid="stMetricValue"] {{
     font-family: 'Space Grotesk', sans-serif !important;
     font-weight: 600 !important;
-}
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -101,6 +110,35 @@ st.markdown("""
 """, unsafe_allow_html=True)
 st.markdown("---")
 
+with st.expander("⚠️ Aviso legal, de responsabilidad y de privacidad"):
+    st.markdown(
+        """
+        **QuantαfolyΩ** es un proyecto educativo y experimental, desarrollado
+        con asistencia de inteligencia artificial, sin fines comerciales ni
+        generación de ingresos. No constituye asesoría financiera, de
+        inversión, legal ni fiscal.
+
+        Los resultados que produce (retornos, métricas de riesgo,
+        optimizaciones de portafolio, etc.) son ejercicios de análisis
+        cuantitativo con supuestos y limitaciones inherentes, y no
+        representan una recomendación de compra, venta o mantenimiento de
+        ningún instrumento financiero. El uso de esta herramienta y
+        cualquier decisión adoptada a partir de su información es
+        responsabilidad exclusiva del usuario.
+
+        QuantαfolyΩ no está afiliado, respaldado ni patrocinado por Yahoo
+        Finance, S&P Dow Jones Indices, la Ken French Data Library, ni por
+        ninguna de las empresas cuyos tickers puedan analizarse aquí. El
+        software se distribuye "tal cual", sin garantía de ningún tipo.
+
+        **Privacidad:** no se solicitan, recopilan ni almacenan datos
+        personales. La información ingresada existe solo durante tu sesión
+        activa y se descarta al cerrarla.
+
+        Detalles completos en el [README del proyecto](https://github.com/JSebastianGarciaL/quantafolyo#aviso-legal-y-de-responsabilidad).
+        """
+    )
+
 col1, col2 = st.columns([2, 1])
 
 with col1:
@@ -144,9 +182,9 @@ with col2:
 
 # --- Sidebar: inputs del usuario ---
 with st.sidebar:
-    st.markdown("""
+    st.markdown(f"""
     <div style="font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:600; margin-bottom:8px;">
-        ⚙️ Quant<span style="color:#D76F02">α</span>foly<span style="color:#985D73">Ω</span>
+        ⚙️ Quant<span style="color:{_color_alpha}">α</span>foly<span style="color:{_color_omega}">Ω</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -181,7 +219,7 @@ with st.sidebar:
     st.divider()
 
     analizar = st.button(
-        "🚀 Analizar portafolio",
+        "Analizar portafolio",
         type="primary",
         width="stretch",
     )

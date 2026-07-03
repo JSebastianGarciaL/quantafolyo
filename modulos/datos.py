@@ -82,7 +82,7 @@ def validar_tickers(lista_tickers: list) -> tuple[dict, list]:
                 'mercado':  mercado,
                 'info':     info,
             }
-            logs.append(f"✅ {ticker:<15} {nombre:<40} {divisa:<8} {mercado}")
+            logs.append(f"{ticker:<15} {nombre:<40} {divisa:<8} {mercado}")
 
         except Exception:
             invalidos.append(ticker)

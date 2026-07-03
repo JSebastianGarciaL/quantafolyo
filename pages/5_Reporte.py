@@ -6,10 +6,10 @@
 import streamlit as st
 import pandas as pd
 from modulos.errores import interpretar_error
-from config import get_colores, get_plotly_layout
+from config import get_colores, get_plotly_layout, get_plotly_config, get_legend_style
 
 st.set_page_config(page_title="Reporte · QuantαfolyΩ", page_icon="📄", layout="wide")
-st.title("📄 Fase 4 — Asistente y Reporte PDF")
+st.title("Asistente y Reporte PDF")
 
 # Verificar prerrequisitos mínimos
 faltan = []
@@ -58,6 +58,7 @@ if ejecutar:
     from modulos.reporte import pipeline_reporte
 
     factor = st.session_state.get("metadatos", {}).get("factor_anualizacion", 12)
+    frecuencia = st.session_state.get("frecuencia", "1mo")
     with st.spinner("Generando narrativa, gráfico y PDF..."):
         resultado = pipeline_reporte(
             retornos=retornos,
@@ -80,6 +81,7 @@ if ejecutar:
             res_mardia=res_mardia,
             nivel_asistente=nivel_asistente,
             factor=factor,
+            frecuencia=frecuencia,
         )
 
     with st.expander("📋 Log del proceso", expanded=resultado.get("error") is not None):
@@ -96,7 +98,7 @@ if ejecutar:
     st.session_state["fig_resumen"] = resultado["fig_resumen"]
     st.session_state["pdf_bytes"]   = resultado["pdf_bytes"]
     st.session_state["fase_completada"]["asistente"] = True
-    st.success("✅ Reporte generado.")
+    st.success("Reporte generado.")
 
 # --- Mostrar resultados ---
 if st.session_state.get("narrativa") is not None:
@@ -326,7 +328,7 @@ if st.session_state.get("narrativa") is not None:
                 trace.update(line=dict(color=_seq[i % len(_seq)], width=2))
             elif hasattr(trace, "marker"):
                 trace.update(marker=dict(color=_seq[i % len(_seq)]))
-        st.plotly_chart(fig_resumen, width="stretch")
+        st.plotly_chart(fig_resumen, width="stretch", config=get_plotly_config())
 
     with tab2:
         st.text(narrativa)
@@ -342,7 +344,7 @@ if st.session_state.get("narrativa") is not None:
             f"_{nivel_asistente}.pdf"
         )
         st.download_button(
-            label="⬇️ Descargar PDF",
+            label="Descargar PDF",
             data=pdf_bytes,
             file_name=nombre_archivo,
             mime="application/pdf",
@@ -352,4 +354,4 @@ if st.session_state.get("narrativa") is not None:
         st.caption(f"Archivo: {nombre_archivo} · {len(pdf_bytes)//1024} KB")
 
     st.divider()
-    st.success("🎉 ¡Análisis completo! Todas las fases ejecutadas correctamente.")
+    st.success("¡Análisis completo! Todas las fases ejecutadas correctamente.")
