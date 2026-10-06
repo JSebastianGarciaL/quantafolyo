@@ -1,30 +1,31 @@
-# QuantαfolyΩ — Dependencias
+# Quantafolio - Dependencias (versiones fijas, probadas en Python 3.12)
 # Instalar con: pip install -r requirements.txt
 
 # --- Core ---
-streamlit>=1.35.0,<2.0.0
+streamlit==1.65.0
 
 # --- Datos ---
-yfinance>=0.2.40
-pandas>=2.0.0
-numpy>=1.26.0
-pandas-datareader>=0.10.0
+yfinance==1.7.0
+pandas==2.3.3
+numpy==2.2.6
+pandas-datareader==0.10.0
 
-# --- Econometría y estadística ---
-statsmodels>=0.14.0
-scipy>=1.11.0
-arch>=6.3.0
-pingouin>=0.5.4
-scikit-learn>=1.3.0
+# --- Econometria y estadistica ---
+statsmodels==0.14.5
+scipy==1.15.3
+arch==7.2.0
+pingouin==0.5.5
+scikit-learn==1.7.2
 
-# --- Optimización ---
-cvxpy>=1.4.0
+# --- Optimizacion ---
+cvxpy==1.7.3
 
-# --- Visualización ---
-plotly>=5.20.0
+# --- Visualizacion ---
+plotly==5.24.1
 
 # --- PDF ---
-reportlab>=4.0.0
+reportlab==4.4.4
 
 # --- Exportar figuras Plotly a imagen (para PDF) ---
+# plotly 5.x + kaleido 0.2.1 es la pareja compatible (kaleido 0.2.1 trae su propio Chromium)
 kaleido==0.2.1
